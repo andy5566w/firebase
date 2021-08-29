@@ -48,8 +48,13 @@
         <base-checkbox v-model="event.extras.music" label="Live music" />
       </div>
 
+      <div>
+        <h1>Firebase Data</h1>
+        {{ firebase_data }}
+      </div>
       <button class="button -fill-gradient" type="submit">Submit</button>
       <button @click="fetchData" type="button">get data</button>
+      <button @click="setData" type="button">set data</button>
     </form>
   </div>
 </template>
@@ -65,6 +70,7 @@ export default {
   components: { BaseInput, BaseSelect, BaseCheckbox, BaseRadio },
   created() {
     this.docRef = firestore.collection('deep')
+    this.firebaseSnapShot()
   },
   data() {
     return {
@@ -89,16 +95,32 @@ export default {
           music: false,
         },
       },
+      firebase_data: '',
     }
   },
   methods: {
+    firebaseSnapShot() {
+      this.docRef.doc('sandwichData').onSnapshot((doc) => {
+        if (doc && doc.exists) {
+          this.firebase_data = doc.data()
+        }
+      })
+    },
     fetchData() {
       this.docRef
         .doc('sandwichData')
         .get()
         .then((doc) => {
-          console.log(doc.data())
+          this.firebase_data = doc.data()
+          console.log(this.firebase_data)
         })
+    },
+    setData() {
+      this.docRef.doc('sandwichData').set({
+        name: 'andy',
+        age: 29,
+        randomNumber: Math.random().toString(16).slice(2),
+      })
     },
   },
 }
