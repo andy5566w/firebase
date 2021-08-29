@@ -16,6 +16,11 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ '../views/About.vue'),
   },
+  {
+    path: '/form',
+    name: 'form',
+    component: () => import('../views/Form'),
+  },
 ]
 
 const router = createRouter({
