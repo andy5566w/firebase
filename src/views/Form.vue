@@ -106,17 +106,14 @@ export default {
         }
       })
     },
-    fetchData() {
-      this.docRef
-        .doc('sandwichData')
-        .get()
-        .then((doc) => {
-          this.firebase_data = doc.data()
-          console.log(this.firebase_data)
-        })
+    async fetchData() {
+      const doc = await this.docRef.doc('sandwichData').get()
+      this.firebase_data = doc.data()
+      console.log(this.firebase_data)
     },
-    setData() {
-      this.docRef.doc('sandwichData').set({
+    async setData() {
+      const ref = this.docRef.doc('sandwichData')
+      await ref.set({
         name: 'andy',
         age: 29,
         randomNumber: Math.random().toString(16).slice(2),
