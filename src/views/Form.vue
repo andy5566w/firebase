@@ -55,6 +55,17 @@
       <button class="button -fill-gradient" type="submit">Submit</button>
       <button @click="fetchData" type="button">get data</button>
       <button @click="setData" type="button">set data</button>
+      <button @click="createData" type="button">create data</button>
+
+      <div>
+        <h1>City</h1>
+        {{ cities }}
+
+        <div>
+          <base-input label="city" v-model="city_name" />
+          <button @click="fetchCity" type="button">get city</button>
+        </div>
+      </div>
     </form>
   </div>
 </template>
@@ -74,6 +85,8 @@ export default {
   },
   data() {
     return {
+      cities: null,
+      city_name: '',
       docRef: null,
       categories: [
         'sustainability',
@@ -118,6 +131,58 @@ export default {
         age: 29,
         randomNumber: Math.random().toString(16).slice(2),
       })
+    },
+    createData() {
+      const citiesRef = firestore.collection('cities')
+      citiesRef.doc('SF').set({
+        name: 'San Francisco',
+        state: 'CA',
+        country: 'USA',
+        capital: false,
+        population: 860000,
+        regions: ['west_coast', 'norcal'],
+      })
+      citiesRef.doc('LA').set({
+        name: 'Los Angeles',
+        state: 'CA',
+        country: 'USA',
+        capital: false,
+        population: 3900000,
+        regions: ['west_coast', 'socal'],
+      })
+      citiesRef.doc('DC').set({
+        name: 'Washington, D.C.',
+        state: null,
+        country: 'USA',
+        capital: true,
+        population: 680000,
+        regions: ['east_coast'],
+      })
+      citiesRef.doc('TOK').set({
+        name: 'Tokyo',
+        state: null,
+        country: 'Japan',
+        capital: true,
+        population: 9000000,
+        regions: ['kanto', 'honshu'],
+      })
+      citiesRef.doc('BJ').set({
+        name: 'Beijing',
+        state: null,
+        country: 'China',
+        capital: true,
+        population: 21500000,
+        regions: ['jingjinji', 'hebei'],
+      })
+    },
+    async fetchCity() {
+      const citiesRef = firestore.collection('cities')
+      const doc = await citiesRef.doc(this.city_name).get()
+      if (doc.exists) {
+        this.cities = doc.data()
+      } else {
+        this.cities = `查無此 ${doc.id} 結果`
+      }
     },
   },
 }
