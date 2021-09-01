@@ -21,6 +21,11 @@ const routes = [
     name: 'form',
     component: () => import('../views/Form'),
   },
+  {
+    path: '/setDoc',
+    name: 'setDoc',
+    component: () => import('../views/SetDoc'),
+  },
 ]
 
 const router = createRouter({
