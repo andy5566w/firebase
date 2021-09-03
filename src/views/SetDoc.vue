@@ -37,6 +37,30 @@
     <div>
       <button @click="setVariableData">setVariable</button>
     </div>
+
+    <div>
+      <button @click="testConverter">converter</button>
+    </div>
+
+    <div>
+      <button @click="addDoc">add doc</button>
+    </div>
+
+    <div>
+      <button @click="updateDoc">upgrade</button>
+    </div>
+
+    <div>
+      <button @click="updateNestedData">upgrade nested data</button>
+    </div>
+
+    <div>
+      <button @click="updateArray">update array</button>
+    </div>
+
+    <div>
+      <button @click="updateNumeric">increment number</button>
+    </div>
   </div>
 </template>
 
@@ -48,6 +72,25 @@ import BaseCheckbox from '../components/form/BaseCheckbox'
 import firestore from '../firebase'
 import firebase from 'firebase/compat'
 import { reactive, ref } from 'vue'
+import { cityConverter } from '../Schema/City'
+
+const docData = {
+  stringExample: 'Hello world!',
+  booleanExample: true,
+  numberExample: 3.14159265,
+  dateExample: firebase.firestore.Timestamp.fromDate(
+    new Date('December 10, 1815')
+  ),
+  arrayExample: [5, true, 'hello'],
+  nullExample: null,
+  create_time: new Date(),
+  objectExample: {
+    a: 591,
+    b: {
+      nested: 'foo',
+    },
+  },
+}
 export default {
   components: { BaseCheckbox, BaseInput },
   setup() {
@@ -87,27 +130,54 @@ export default {
     }
 
     const setVariableData = async () => {
-      var docData = {
-        stringExample: 'Hello world!',
-        booleanExample: true,
-        numberExample: 3.14159265,
-        dateExample: firebase.firestore.Timestamp.fromDate(
-          new Date('December 10, 1815')
-        ),
-        arrayExample: [5, true, 'hello'],
-        nullExample: null,
-        objectExample: {
-          a: 5,
-          b: {
-            nested: 'foo',
-          },
-        },
-      }
       console.log('docData 看時間格式', docData)
       console.log('time', firebase.firestore.Timestamp.fromDate(new Date()))
       console.log(firebase.firestore)
-      // const dataRef = firestore.collection('data')
-      // await dataRef.doc('one').set(docData)
+      const dataRef = firestore.collection('data')
+      await dataRef.doc('one').withConverter(cityConverter).set(docData)
+    }
+
+    const testConverter = async () => {
+      const data = await firestore
+        .collection('cities')
+        .doc('LA')
+        .withConverter(cityConverter)
+        .get()
+      console.log(data.data())
+    }
+
+    const addDoc = async () => {
+      const dataRef = firestore.collection('data')
+      const data = await dataRef.add(docData)
+      console.log(data)
+    }
+
+    const updateDoc = async () => {
+      const dataRef = firestore.collection('data').doc('one')
+      console.log(firebase.firestore.FieldValue.serverTimestamp())
+      await dataRef.update({
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      // console.log('fetch data', data.data())
+    }
+
+    const updateNestedData = async () => {
+      const dataRef = firestore.collection('data').doc('9AbAIMBMFqjgxkAD31IE')
+      await dataRef.update({ objectExample: 'nested test' })
+    }
+
+    const updateArray = async () => {
+      const cityRef = firestore.collection('cities').doc('DC')
+      await cityRef.update({
+        regions: firebase.firestore.FieldValue.arrayRemove('new one'),
+      })
+    }
+
+    const updateNumeric = async () => {
+      const cityRef = firestore.collection('cities').doc('DC')
+      await cityRef.update({
+        population: firebase.firestore.FieldValue.increment(-7),
+      })
     }
 
     return {
@@ -117,6 +187,12 @@ export default {
       queryCity,
       city_data,
       setVariableData,
+      testConverter,
+      addDoc,
+      updateDoc,
+      updateNestedData,
+      updateArray,
+      updateNumeric,
     }
   },
 }
