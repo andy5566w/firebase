@@ -26,6 +26,11 @@ const routes = [
     name: 'setDoc',
     component: () => import('../views/SetDoc'),
   },
+  {
+    path: '/transaction',
+    name: 'transaction',
+    component: () => import('../views/Transaction'),
+  },
 ]
 
 const router = createRouter({
