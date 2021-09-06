@@ -17,6 +17,16 @@
     <h1>Array-Contains-any</h1>
     <button @click="queryArrayContainsAny">array contains any</button>
   </div>
+
+  <div>
+    <h1>Compound Query</h1>
+    <button @click="compoundQuery">Compound Query</button>
+  </div>
+
+  <div>
+    <h1>collections Group</h1>
+    <button @click="collectionGroup">collection group</button>
+  </div>
 </template>
 
 <script>
@@ -27,6 +37,15 @@ export default {
   setup() {
     const array_contains = ref('')
     const refCity = firestore.collection('cities')
+    const showDocs = (query) => {
+      if (!query.empty) {
+        query.docs.forEach((doc) => {
+          console.log(doc.data())
+        })
+      } else {
+        console.log('query is nothing', query)
+      }
+    }
 
     const setCityData = async () => {
       const result = await refCity.doc('IN').set({
@@ -39,19 +58,13 @@ export default {
       })
       console.log(result)
     }
+
     const queryArrayContains = async () => {
       try {
         const query = await refCity
-          .where('regions', 'array-contains', ['hebei', 'west_coast'])
-          .where('regions', 'array-contains', ['kanto'])
+          .where('regions', 'array-contains', 'hebei')
           .get()
-        if (!query.empty) {
-          query.docs.forEach((doc) => {
-            console.log(doc.data())
-          })
-        } else {
-          console.log('query is nothing', query)
-        }
+        showDocs(query)
       } catch (e) {
         console.log(e)
       }
@@ -62,35 +75,20 @@ export default {
       const query = await refCity
         .where('regions', 'in', [['east_coast'], ['west_coast', 'norcal']])
         .get()
-      if (!query.empty) {
-        query.docs.forEach((doc) => {
-          console.log(doc.data())
-        })
-      } else {
-        console.log('query is nothing', query)
-      }
+      showDocs(query)
     }
 
     const queryNotIn = async () => {
       const query = await refCity
         .where('name', 'not-in', ['Japan', 'USA', ''])
         .get()
-      if (!query.empty) {
-        query.docs.forEach((doc) => {
-          console.log(doc.data())
-        })
-      } else {
-        console.log('query is nothing', query)
-      }
+      showDocs(query)
     }
 
     const queryArrayContainsAny = async () => {
       const query = await refCity
-        .where('name', 'array-contains-any', [
+        .where('regions', 'array-contains-any', [
           'jingjinji',
-          'hebei',
-          'hebei',
-          'hebei',
           'hebei',
           'hebei',
           'hebei',
@@ -100,13 +98,23 @@ export default {
           'hebei',
         ])
         .get()
-      if (!query.empty) {
-        query.docs.forEach((doc) => {
-          console.log(doc.data())
-        })
-      } else {
-        console.log('query is nothing', query)
-      }
+      showDocs(query)
+    }
+
+    const compoundQuery = async () => {
+      const query = await refCity
+        .where('state', '==', 'CA')
+        .where('state', '<=', 'IN')
+        .get()
+      showDocs(query)
+    }
+
+    const collectionGroup = async () => {
+      const museum = firestore
+        .collectionGroup('landmarks')
+        .where('type', '==', 'museum')
+      const query = await museum.get()
+      showDocs(query)
     }
 
     return {
@@ -116,6 +124,8 @@ export default {
       queryIn,
       queryNotIn,
       queryArrayContainsAny,
+      compoundQuery,
+      collectionGroup,
     }
   },
 }
