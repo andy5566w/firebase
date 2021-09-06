@@ -31,6 +31,11 @@ const routes = [
     name: 'transaction',
     component: () => import('../views/Transaction'),
   },
+  {
+    path: '/array',
+    name: 'Array',
+    component: () => import('../views/Array'),
+  },
 ]
 
 const router = createRouter({
